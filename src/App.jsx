@@ -5,7 +5,6 @@ import './App.css'
 function Counter() {
   const [count, setCount] = useState(0)
 
-  // Example map() and filter()
   const numbers = [1, 2, 3, 4, 5, 6]
   const evenNumbers = numbers.filter(num => num % 2 === 0)
   const doubledEvens = evenNumbers.map(num => num * 2)
