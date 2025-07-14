@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 import './App.css'
 
-// Counter Component
+// Counter Component (same)
 function Counter() {
   const [count, setCount] = useState(0)
 
-  const numbers = [1, 2, 3, 4, 5, 6, 8]
+  const numbers = [1, 2, 3, 4, 5, 6]
   const evenNumbers = numbers.filter(num => num % 2 === 0)
   const doubledEvens = evenNumbers.map(num => num * 2)
 
@@ -25,7 +26,7 @@ function Counter() {
   )
 }
 
-// Stopwatch Component
+// Stopwatch Component (same)
 function Stopwatch() {
   const [time, setTime] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
@@ -55,13 +56,56 @@ function Stopwatch() {
   )
 }
 
+// FetchData Component - shows fetch() and axios
+function FetchData() {
+  const [dataFetch, setDataFetch] = useState(null)
+  const [dataAxios, setDataAxios] = useState(null)
+
+  useEffect(() => {
+    // Example API: JSONPlaceholder
+    const url = 'https://jsonplaceholder.typicode.com/posts/1'
+
+    // fetch()
+    fetch(url)
+      .then(response => response.json())
+      .then(data => setDataFetch(data))
+      .catch(error => console.error('Fetch Error:', error))
+
+    // axios
+    axios.get(url)
+      .then(response => setDataAxios(response.data))
+      .catch(error => console.error('Axios Error:', error))
+  }, [])
+
+  return (
+    <div className="card">
+      <h2>FETCH DATA</h2>
+
+      <h4>Using fetch():</h4>
+      {dataFetch ? (
+        <pre>{JSON.stringify(dataFetch, null, 2)}</pre>
+      ) : (
+        <p>Loading fetch data...</p>
+      )}
+
+      <h4>Using axios:</h4>
+      {dataAxios ? (
+        <pre>{JSON.stringify(dataAxios, null, 2)}</pre>
+      ) : (
+        <p>Loading axios data...</p>
+      )}
+    </div>
+  )
+}
+
 // Main App
 function App() {
   return (
     <>
-      <h1>Counter & Stopwatch</h1>
+      <h1>Counter & Stopwatch & Fetch</h1>
       <Counter />
       <Stopwatch />
+      <FetchData />
     </>
   )
 }
