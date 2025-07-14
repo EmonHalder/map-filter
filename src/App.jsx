@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './App.css'
 
-// Counter Component (same)
+// Counter Component
 function Counter() {
   const [count, setCount] = useState(0)
 
@@ -16,6 +16,7 @@ function Counter() {
       <p>Count is: {count}</p>
       <button onClick={() => setCount(count + 1)}>Increase</button>
       <button onClick={() => setCount(count - 1)}>Decrease</button>
+      <button onClick={() => setCount(0)}>Reset</button>
 
       <div>
         <h4>Original Numbers: {numbers.join(', ')}</h4>
@@ -26,7 +27,7 @@ function Counter() {
   )
 }
 
-// Stopwatch Component (same)
+// Stopwatch Component - shows minutes:seconds
 function Stopwatch() {
   const [time, setTime] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
@@ -45,10 +46,17 @@ function Stopwatch() {
     return () => clearInterval(interval)
   }, [isRunning])
 
+  // Format seconds into mm:ss
+  const formatTime = (time) => {
+    const mins = String(Math.floor(time / 60)).padStart(2, '0')
+    const secs = String(time % 60).padStart(2, '0')
+    return `${mins}:${secs}`
+  }
+
   return (
     <div className="card">
       <h2>STOPWATCH</h2>
-      <p>Time: {time}s</p>
+      <p>Time: {formatTime(time)}</p>
       <button onClick={() => setIsRunning(true)}>Start</button>
       <button onClick={() => setIsRunning(false)}>Stop</button>
       <button onClick={() => { setTime(0); setIsRunning(false) }}>Reset</button>
@@ -56,20 +64,31 @@ function Stopwatch() {
   )
 }
 
-// FetchData Component - shows fetch() and axios
+// FetchData Component - improved variant
 function FetchData() {
-  const [dataFetch, setDataFetch] = useState(null)
-  const [dataAxios, setDataAxios] = useState(null)
+  const [dataFetch, setDataFetch] = useState([])
+  const [dataAxios, setDataAxios] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    // Example API: JSONPlaceholder
-    const url = 'https://jsonplaceholder.typicode.com/posts/1'
+    const url = 'https://jsonplaceholder.typicode.com/posts?_limit=3'
 
     // fetch()
     fetch(url)
-      .then(response => response.json())
-      .then(data => setDataFetch(data))
-      .catch(error => console.error('Fetch Error:', error))
+      .then(response => {
+        if (!response.ok) throw new Error('Fetch request failed')
+        return response.json()
+      })
+      .then(data => {
+        setDataFetch(data)
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error('Fetch Error:', error)
+        setError(error.message)
+        setLoading(false)
+      })
 
     // axios
     axios.get(url)
@@ -81,19 +100,24 @@ function FetchData() {
     <div className="card">
       <h2>FETCH DATA</h2>
 
+      {loading && <p>Loading fetch data...</p>}
+      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+
       <h4>Using fetch():</h4>
-      {dataFetch ? (
-        <pre>{JSON.stringify(dataFetch, null, 2)}</pre>
-      ) : (
-        <p>Loading fetch data...</p>
-      )}
+      {dataFetch.map(post => (
+        <div key={post.id}>
+          <strong>{post.title}</strong>
+          <p>{post.body}</p>
+        </div>
+      ))}
 
       <h4>Using axios:</h4>
-      {dataAxios ? (
-        <pre>{JSON.stringify(dataAxios, null, 2)}</pre>
-      ) : (
-        <p>Loading axios data...</p>
-      )}
+      {dataAxios.map(post => (
+        <div key={post.id}>
+          <strong>{post.title}</strong>
+          <p>{post.body}</p>
+        </div>
+      ))}
     </div>
   )
 }
